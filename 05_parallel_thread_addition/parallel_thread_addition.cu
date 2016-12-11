@@ -17,8 +17,8 @@ int main(void) {
   cudaMalloc((void **)&d_b, size);
   cudaMalloc((void **)&d_c, size);
 
-  a = (int *)malloc(size); array_of_ones(a, N); print_array(a, N);
-  b = (int *)malloc(size); array_of_ones(b, N); print_array(b, N);
+  a = (int *)malloc(size); array_of_randoms(a, N); print_array(a, N);
+  b = (int *)malloc(size); array_of_randoms(b, N); print_array(b, N);
   c = (int *)malloc(size);
 
   cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
@@ -34,7 +34,7 @@ int main(void) {
   return 0;
 }
 
-void array_of_ones(int *array, int size) {
+void array_of_randoms(int *array, int size) {
   for (int i = 0; i < size; ++i) {
     array[i] = rand() % 10 + 1;
   }

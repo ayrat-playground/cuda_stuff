@@ -1,12 +1,15 @@
 #include <stdio.h>
-#define N 512
+#define N (2048*2048)
+#define THEADS_PER_BLOCK 512
 
-__global__ void add(int *a, int *b, int *c) {
-  c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x];
+__global__ void add(int *a, int *b, int *c, int n) {
+  int index = threadIdx.x + blockIdx.x * blockDim.x;
+  if (index < n) {
+    c[index] = a[index] + b[index];
+  }
 }
 
 void array_of_ones(int *array, int size);
-
 void print_array(int *array, int size);
 
 int main(void) {
@@ -25,7 +28,7 @@ int main(void) {
   cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
   cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
 
-  add<<<N,1>>>(d_a, d_b, d_c);
+  add<<<(N + THEADS_PER_BLOCK - 1) / THEADS_PER_BLOCK,THEADS_PER_BLOCK>>>(d_a, d_b, d_c, N);
 
   cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
   print_array(c, N);
@@ -35,7 +38,7 @@ int main(void) {
   return 0;
 }
 
-void array_of_ransoms(int *array, int size) {
+void array_of_randoms(int *array, int size) {
   for (int i = 0; i < size; ++i) {
     array[i] = rand() % 10 + 1;
   }
