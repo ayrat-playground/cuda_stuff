@@ -1,14 +1,12 @@
 #include <stdio.h>
-#define N 5
+#define N 512
 
 __global__ void add(int *a, int *b, int *c) {
-  int i = blockIdx.x;
-  if (i<N) {
-    c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x];
-  }
+  c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x];
 }
 
 void array_of_ones(int *array, int size);
+
 void print_array(int *array, int size);
 
 int main(void) {
@@ -24,10 +22,10 @@ int main(void) {
   b = (int *)malloc(size); array_of_ones(b, N); print_array(b, N);
   c = (int *)malloc(size);
 
-  cudaMemcpy(d_a, &a, size, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_b, &b, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
 
-  add<<<1,N>>>(d_a, d_b, d_c);
+  add<<<N,1>>>(d_a, d_b, d_c);
 
   cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
   print_array(c, N);
